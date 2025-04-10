@@ -1,0 +1,30 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Java
+      apt:
+        name: openjdk-17-jdk
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Jenkins repo
+      shell: |
+        wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+        sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+        apt update
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Add Jenkins to Docker group
+      user:
+        name: jenkins
+        groups: docker
+        append: yes
